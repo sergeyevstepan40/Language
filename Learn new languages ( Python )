@@ -1,0 +1,37 @@
+import random
+
+class LanguageLearningProgram:
+    def __init__(self, language):
+        self.language = language
+        self.vocabulary = {
+            'English': {'hello': 'こんにちは', 'goodbye': 'さようなら', 'thank you': 'ありがとう'},
+            # Add more words and translations for other languages
+        }
+
+    def get_random_word(self):
+        words = list(self.vocabulary['English'].keys())
+        return random.choice(words)
+
+    def quiz_user(self, word, translation):
+        user_input = input(f"What is the translation of '{word}' in {self.language}? ").strip().lower()
+        return user_input == translation.lower()
+
+    def run(self):
+        print(f"Welcome to the {self.language} Language Learning Program!")
+        print("Let's get started.\n")
+
+        for _ in range(3):  # Change the number of words to quiz the user on
+            word = self.get_random_word()
+            translation = self.vocabulary['English'][word]
+            
+            if self.quiz_user(word, translation):
+                print("Correct!\n")
+            else:
+                print(f"Sorry, the correct translation of '{word}' in {self.language} is '{translation}'.\n")
+
+        print("Congratulations! You've completed the quiz.")
+
+if __name__ == "__main__":
+    # Replace 'Japanese' with the language you want to learn
+    program = LanguageLearningProgram('Japanese')
+    program.run()
