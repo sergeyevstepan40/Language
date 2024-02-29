@@ -1,0 +1,63 @@
+import UIKit
+
+class ViewController: UIViewController {
+
+    @IBOutlet weak var wordLabel: UILabel!
+    @IBOutlet weak var answerTextField: UITextField!
+    @IBOutlet weak var feedbackLabel: UILabel!
+
+    let vocabulary: [String: String] = ["hello": "こんにちは", "goodbye": "さようなら", "thank you": "ありがとう"]
+    var currentWord: String = ""
+    var score: Int = 0
+    var remainingWords: [String] = []
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        startQuiz()
+    }
+
+    func startQuiz() {
+        feedbackLabel.text = ""
+        score = 0
+        remainingWords = Array(vocabulary.keys)
+        nextQuestion()
+    }
+
+    func nextQuestion() {
+        if let word = remainingWords.popLast() {
+            currentWord = word
+            wordLabel.text = word
+            answerTextField.text = ""
+        } else {
+            showResult()
+        }
+    }
+
+    func showResult() {
+        wordLabel.text = "Quiz Completed"
+        answerTextField.isHidden = true
+        feedbackLabel.text = "Your score: \(score)/\(vocabulary.count)"
+    }
+
+    @IBAction func checkAnswer(_ sender: UIButton) {
+        guard let userAnswer = answerTextField.text?.trimmingCharacters(in: .whitespacesAndNewlines) else {
+            return
+        }
+
+        let correctAnswer = vocabulary[currentWord] ?? ""
+
+        if userAnswer.lowercased() == correctAnswer.lowercased() {
+            feedbackLabel.text = "Correct!"
+            score += 1
+        } else {
+            feedbackLabel.text = "Incorrect. The correct answer is \(correctAnswer)"
+        }
+
+        nextQuestion()
+    }
+
+    @IBAction func restartQuiz(_ sender: UIButton) {
+        answerTextField.isHidden = false
+        startQuiz()
+    }
+}
