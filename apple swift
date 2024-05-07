@@ -5,29 +5,35 @@ class ViewController: UIViewController {
     @IBOutlet weak var wordLabel: UILabel!
     @IBOutlet weak var answerTextField: UITextField!
     @IBOutlet weak var feedbackLabel: UILabel!
-
-    let vocabulary: [String: String] = ["hello": "こんにちは", "goodbye": "さようなら", "thank you": "ありがとう"]
-    var currentWord: String = ""
-    var score: Int = 0
-    var remainingWords: [String] = []
+    @IBOutlet weak var scoreLabel: UILabel!
+    
+    let vocabulary: [String: [String: String]] = [
+        "English": ["hello": "こんにちは", "goodbye": "さようなら", "thank you": "ありがとう"],
+        "Spanish": ["hello": "hola", "goodbye": "adiós", "thank you": "gracias"],
+        // Add more languages and their vocabulary here
+    ]
+    var currentLanguageIndex = 0
+    var currentWord = ""
+    var score = 0
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        startQuiz()
+        updateUI()
     }
-
-    func startQuiz() {
+    
+    func updateUI() {
+        let currentLanguage = Array(vocabulary.keys)[currentLanguageIndex]
+        wordLabel.text = "Translate: " + currentWord
         feedbackLabel.text = ""
-        score = 0
-        remainingWords = Array(vocabulary.keys)
-        nextQuestion()
+        scoreLabel.text = "Score: \(score)"
+        answerTextField.text = ""
     }
 
     func nextQuestion() {
-        if let word = remainingWords.popLast() {
+        if let language = Array(vocabulary.keys).randomElement(),
+           let word = vocabulary[language]?.keys.randomElement() {
             currentWord = word
-            wordLabel.text = word
-            answerTextField.text = ""
+            updateUI()
         } else {
             showResult()
         }
@@ -35,16 +41,16 @@ class ViewController: UIViewController {
 
     func showResult() {
         wordLabel.text = "Quiz Completed"
-        answerTextField.isHidden = true
-        feedbackLabel.text = "Your score: \(score)/\(vocabulary.count)"
+        feedbackLabel.text = "Your score: \(score)/\(vocabulary.values.flatMap { $0.keys }.count)"
     }
 
     @IBAction func checkAnswer(_ sender: UIButton) {
         guard let userAnswer = answerTextField.text?.trimmingCharacters(in: .whitespacesAndNewlines) else {
             return
         }
-
-        let correctAnswer = vocabulary[currentWord] ?? ""
+        
+        let currentLanguage = Array(vocabulary.keys)[currentLanguageIndex]
+        let correctAnswer = vocabulary[currentLanguage]?[currentWord] ?? ""
 
         if userAnswer.lowercased() == correctAnswer.lowercased() {
             feedbackLabel.text = "Correct!"
@@ -52,12 +58,12 @@ class ViewController: UIViewController {
         } else {
             feedbackLabel.text = "Incorrect. The correct answer is \(correctAnswer)"
         }
-
+        
         nextQuestion()
     }
 
-    @IBAction func restartQuiz(_ sender: UIButton) {
-        answerTextField.isHidden = false
-        startQuiz()
+    @IBAction func switchLanguage(_ sender: UIButton) {
+        currentLanguageIndex = (currentLanguageIndex + 1) % vocabulary.count
+        nextQuestion()
     }
 }
